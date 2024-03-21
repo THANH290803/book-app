@@ -31,6 +31,41 @@ function BookDetail() {
         fetchBookDetails();
     }, [id]);
 
+    const handleAddToCart = () => {
+        if (book) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            let isAlreadyInCart = false;
+
+            // Check if the item is already in cart
+            cart.forEach(item => {
+                if (item.id === book.Id) {
+                    isAlreadyInCart = true;
+                    item.quantity++; // Increase quantity if already in cart
+                }
+            });
+
+            // If the item is not in cart, add it
+            if (!isAlreadyInCart) {
+                const cartItem = {
+                    id: book.Id,
+                    name: book.Name,
+                    price: book.Price,
+                    quantity: 1,
+                    imageUrl: book.ImageUrl
+                };
+                cart.push(cartItem);
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert('Added to cart!');
+        }
+    };
+
+
+
+
+
+
     return (
         <>
             <Header />
@@ -56,8 +91,8 @@ function BookDetail() {
                                                 <span>
                                                     <span>{book.Price.toLocaleString('vi-VN')} VND</span>
                                                     <label>Quantity:</label>
-                                                    <input type="number" defaultValue={3} />
-                                                    <button type="button" className="btn btn-fefault cart">
+                                                    <input type="number" defaultValue={1} />
+                                                    <button type="button" className="btn btn-fefault cart" onClick={handleAddToCart}>
                                                         <i className="fa fa-shopping-cart" />
                                                         Add to cart
                                                     </button>

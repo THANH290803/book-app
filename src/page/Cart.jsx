@@ -1,8 +1,48 @@
 import React, { useState, useEffect } from "react";
 import Header from "../Component/Header";
 import Footer from "../Component/Footer";
+import { Link } from "react-router-dom";
+import axios from 'axios';
 
 function Cart() {
+    const [cart, setCart] = useState(JSON.parse(localStorage.getItem('cart')) || []);
+
+    useEffect(() => {
+        localStorage.setItem('cart', JSON.stringify(cart));
+    }, [cart]);
+
+    const handleRemoveFromCart = (itemId) => {
+        let updatedCart = cart.filter(item => item.id !== itemId);
+        localStorage.setItem('cart', JSON.stringify(updatedCart));
+        window.location.reload(); // Reload the page to reflect changes
+    };
+
+    const handleQuantityChange = (itemId, newQuantity) => {
+        let updatedCart;
+        if (newQuantity < 1) {
+            updatedCart = cart.filter(item => item.id !== itemId);
+        } else {
+            updatedCart = cart.map(item => {
+                if (item.id === itemId) {
+                    item.quantity = newQuantity;
+                }
+                return item;
+            });
+        }
+        setCart(updatedCart);
+        localStorage.setItem('cart', JSON.stringify(updatedCart));
+    };
+
+
+    const getTotalPrice = () => {
+        return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+    };
+
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+    };
+
+
     return (
         <>
             <Header />
@@ -30,138 +70,52 @@ function Cart() {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td className="cart_product">
-                                        <a href="">
-                                            <img src="images/cart/one.png" alt="" />
-                                        </a>
-                                    </td>
-                                    <td className="cart_description">
-                                        <h4>
-                                            <a href="">Colorblock Scuba</a>
-                                        </h4>
+                                {cart.map(item => (
+                                    <tr>
+                                        <td className="cart_product" style={{ marginRight: "10px" }}>
+                                            <a href="">
+                                                <img src={'/images/shop/' + item.imageUrl} alt="" style={{ width: "100px" }} />
+                                            </a>
+                                        </td>
+                                        <td className="cart_description">
+                                            <h4>
+                                                <a href="">{item.name}</a>
+                                            </h4>
 
-                                    </td>
-                                    <td className="cart_price">
-                                        <p>$59</p>
-                                    </td>
-                                    <td className="cart_quantity">
-                                        <div className="cart_quantity_button">
-                                            <a className="cart_quantity_up" href="">
-                                                {" "}
-                                                +{" "}
+                                        </td>
+                                        <td className="cart_price">
+                                            <p>{item.price.toLocaleString('vi-VN')} VND</p>
+                                        </td>
+                                        <td className="cart_quantity">
+                                            <div className="cart_quantity_button">
+                                                <a className="cart_quantity_down" onClick={() => handleQuantityChange(item.id, item.quantity - 1)}>
+                                                    {" "}
+                                                    -{" "}
+                                                </a>
+                                                <input
+                                                    className="cart_quantity_input"
+                                                    type="text"
+                                                    name="quantity"
+                                                    value={item.quantity}
+                                                    autoComplete="off"
+                                                    size={2}
+                                                />
+                                                <a className="cart_quantity_up" onClick={() => handleQuantityChange(item.id, item.quantity + 1)}>
+                                                    {" "}
+                                                    +{" "}
+                                                </a>
+                                            </div>
+                                        </td>
+                                        <td className="cart_total">
+                                            <p className="cart_total_price">{formatCurrency(item.price * item.quantity)}</p>
+                                        </td>
+                                        <td className="cart_delete">
+                                            <a className="cart_quantity_delete" onClick={() => handleRemoveFromCart(item.id)}>
+                                                <i className="fa fa-times" />
                                             </a>
-                                            <input
-                                                className="cart_quantity_input"
-                                                type="text"
-                                                name="quantity"
-                                                defaultValue={1}
-                                                autoComplete="off"
-                                                size={2}
-                                            />
-                                            <a className="cart_quantity_down" href="">
-                                                {" "}
-                                                -{" "}
-                                            </a>
-                                        </div>
-                                    </td>
-                                    <td className="cart_total">
-                                        <p className="cart_total_price">$59</p>
-                                    </td>
-                                    <td className="cart_delete">
-                                        <a className="cart_quantity_delete" href="">
-                                            <i className="fa fa-times" />
-                                        </a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td className="cart_product">
-                                        <a href="">
-                                            <img src="images/cart/two.png" alt="" />
-                                        </a>
-                                    </td>
-                                    <td className="cart_description">
-                                        <h4>
-                                            <a href="">Colorblock Scuba</a>
-                                        </h4>
-
-                                    </td>
-                                    <td className="cart_price">
-                                        <p>$59</p>
-                                    </td>
-                                    <td className="cart_quantity">
-                                        <div className="cart_quantity_button">
-                                            <a className="cart_quantity_up" href="">
-                                                {" "}
-                                                +{" "}
-                                            </a>
-                                            <input
-                                                className="cart_quantity_input"
-                                                type="text"
-                                                name="quantity"
-                                                defaultValue={1}
-                                                autoComplete="off"
-                                                size={2}
-                                            />
-                                            <a className="cart_quantity_down" href="">
-                                                {" "}
-                                                -{" "}
-                                            </a>
-                                        </div>
-                                    </td>
-                                    <td className="cart_total">
-                                        <p className="cart_total_price">$59</p>
-                                    </td>
-                                    <td className="cart_delete">
-                                        <a className="cart_quantity_delete" href="">
-                                            <i className="fa fa-times" />
-                                        </a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td className="cart_product">
-                                        <a href="">
-                                            <img src="images/cart/three.png" alt="" />
-                                        </a>
-                                    </td>
-                                    <td className="cart_description">
-                                        <h4>
-                                            <a href="">Colorblock Scuba</a>
-                                        </h4>
-
-                                    </td>
-                                    <td className="cart_price">
-                                        <p>$59</p>
-                                    </td>
-                                    <td className="cart_quantity">
-                                        <div className="cart_quantity_button">
-                                            <a className="cart_quantity_up" href="">
-                                                {" "}
-                                                +{" "}
-                                            </a>
-                                            <input
-                                                className="cart_quantity_input"
-                                                type="text"
-                                                name="quantity"
-                                                defaultValue={1}
-                                                autoComplete="off"
-                                                size={2}
-                                            />
-                                            <a className="cart_quantity_down" href="">
-                                                {" "}
-                                                -{" "}
-                                            </a>
-                                        </div>
-                                    </td>
-                                    <td className="cart_total">
-                                        <p className="cart_total_price">$59</p>
-                                    </td>
-                                    <td className="cart_delete">
-                                        <a className="cart_quantity_delete" href="">
-                                            <i className="fa fa-times" />
-                                        </a>
-                                    </td>
-                                </tr>
+                                        </td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>
@@ -178,66 +132,10 @@ function Cart() {
                         </p>
                     </div>
                     <div className="row">
-                        {/* <div className="col-sm-6"> */}
-                        {/* <div className="chose_area">
-                                <ul className="user_option">
-                                    <li>
-                                        <input type="checkbox" />
-                                        <label>Use Coupon Code</label>
-                                    </li>
-                                    <li>
-                                        <input type="checkbox" />
-                                        <label>Use Gift Voucher</label>
-                                    </li>
-                                    <li>
-                                        <input type="checkbox" />
-                                        <label>Estimate Shipping &amp; Taxes</label>
-                                    </li>
-                                </ul>
-                                <ul className="user_info">
-                                    <li className="single_field">
-                                        <label>Country:</label>
-                                        <select>
-                                            <option>United States</option>
-                                            <option>Bangladesh</option>
-                                            <option>UK</option>
-                                            <option>India</option>
-                                            <option>Pakistan</option>
-                                            <option>Ucrane</option>
-                                            <option>Canada</option>
-                                            <option>Dubai</option>
-                                        </select>
-                                    </li>
-                                    <li className="single_field">
-                                        <label>Region / State:</label>
-                                        <select>
-                                            <option>Select</option>
-                                            <option>Dhaka</option>
-                                            <option>London</option>
-                                            <option>Dillih</option>
-                                            <option>Lahore</option>
-                                            <option>Alaska</option>
-                                            <option>Canada</option>
-                                            <option>Dubai</option>
-                                        </select>
-                                    </li>
-                                    <li className="single_field zip-field">
-                                        <label>Zip Code:</label>
-                                        <input type="text" />
-                                    </li>
-                                </ul>
-                                <a className="btn btn-default update" href="">
-                                    Get Quotes
-                                </a>
-                                <a className="btn btn-default check_out" href="">
-                                    Continue
-                                </a>
-                            </div> */}
-                        {/* </div> */}
                         <div className="col-sm-12">
                             <div className="total_area">
                                 <ul>
-                                    <li>
+                                    {/* <li>
                                         <label>Phương thức thanh toán:</label>
                                         <select>
                                             <option>Select</option>
@@ -249,17 +147,17 @@ function Cart() {
                                             <option>Canada</option>
                                             <option>Dubai</option>
                                         </select>
-                                    </li>
+                                    </li> */}
                                     <li>
-                                        Total <span>$61</span>
+                                        Total <span>{formatCurrency(getTotalPrice())}</span>
                                     </li>
                                 </ul>
-                                <a className="btn btn-default update" href="">
+                                {/* <a className="btn btn-default update" href="" style={{ display: "none" }}>
                                     Update
-                                </a>
-                                <a className="btn btn-default check_out" href="">
+                                </a> */}
+                                <Link to={"/Checkout"} className="btn btn-default update" href="">
                                     Check Out
-                                </a>
+                                </Link>
                             </div>
                         </div>
                     </div>
